@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Dataset EDA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        canvas {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Titanic Dataset EDA</h1>
+
+    <input type="file" id="upload" accept=".csv"/>
+    <table id="data-table"></table>
+    <canvas id="age-chart"></canvas>
+    <canvas id="survival-gender-chart"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.getElementById('upload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    processData(text);
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function processData(csvData) {
+            const rows = csvData.split('\n');
+            const headers = rows[0].split(',');
+
+            let data = rows.slice(1).map(row => row.split(','));
+
+           
+            data = data.filter(row => row.length === headers.length);
+            data = data.map(row => {
+                return {
+                    PassengerId: parseInt(row[0]),
+                    Survived: parseInt(row[1]),
+                    Pclass: parseInt(row[2]),
+                    Name: row[3],
+                    Sex: row[4],
+                    Age: parseFloat(row[5]),
+                    SibSp: parseInt(row[6]),
+                    Parch: parseInt(row[7]),
+                    Ticket: row[8],
+                    Fare: parseFloat(row[9]),
+                    Cabin: row[10],
+                    Embarked: row[11]
+                };
+            });
+
+            
+            displayTable(headers, data.slice(0, 10));
+
+            plotAgeDistribution(data);
+            plotSurvivalByGender(data);
+        }
+
+        function displayTable(headers, data) {
+            const table = document.getElementById('data-table');
+            let headerRow = '<tr>';
+            headers.forEach(header => headerRow += `<th>${header}</th>`);
+            headerRow += '</tr>';
+
+            let rows = data.map(row => {
+                return `<tr>${Object.values(row).map(value => `<td>${value}</td>`).join('')}</tr>`;
+            }).join('');
+
+            table.innerHTML = headerRow + rows;
+        }
+
+        function plotAgeDistribution(data) {
+            const ages = data.map(row => row.Age).filter(age => !isNaN(age));
+
+            const ctx = document.getElementById('age-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from(new Set(ages)),
+                    datasets: [{
+                        label: 'Age Distribution',
+                        data: ages.reduce((acc, age) => {
+                            acc[age] = (acc[age] || 0) + 1;
+                            return acc;
+                        }, {}),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function plotSurvivalByGender(data) {
+            const survivalByGender = data.reduce((acc, row) => {
+                if (!acc[row.Sex]) {
+                    acc[row.Sex] = { survived: 0, total: 0 };
+                }
+                acc[row.Sex].total += 1;
+                if (row.Survived === 1) {
+                    acc[row.Sex].survived += 1;
+                }
+                return acc;
+            }, {});
+
+            const ctx = document.getElementById('survival-gender-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(survivalByGender),
+                    datasets: [{
+                        label: 'Survival Rate by Gender',
+                        data: Object.values(survivalByGender).map(g => (g.survived / g.total) * 100),
+                        backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+                        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
