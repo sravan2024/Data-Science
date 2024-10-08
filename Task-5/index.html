@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Accident Analysis</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Traffic Accident Analysis Dashboard</h1>
+    </header>
+    <section id="filters">
+       
+        <label for="timeOfDay">Time of Day:</label>
+        <select id="timeOfDay">
+            <option value="all">All</option>
+            <option value="morning">Morning</option>
+            <option value="afternoon">Afternoon</option>
+            <option value="evening">Evening</option>
+            <option value="night">Night</option>
+        </select>
+
+        <label for="roadCondition">Road Condition:</label>
+        <select id="roadCondition">
+            <option value="all">All</option>
+            <option value="dry">Dry</option>
+            <option value="wet">Wet</option>
+            <option value="icy">Icy</option>
+        </select>
+
+        <label for="weather">Weather:</label>
+        <select id="weather">
+            <option value="all">All</option>
+            <option value="clear">Clear</option>
+            <option value="rainy">Rainy</option>
+            <option value="foggy">Foggy</option>
+            <option value="snowy">Snowy</option>
+        </select>
+    </section>
+
+    <section id="map">
+        
+    </section>
+
+    <section id="charts">
+      
+    </section>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
